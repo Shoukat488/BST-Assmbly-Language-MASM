@@ -1,4 +1,5 @@
-﻿  Assembling file.asm...
-file.asm(22): error A2070: invalid instruction operands
-file.asm(26): warning A6001: no return from procedure
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\BuildCustomizations\masm.targets(50,5): error MSB3721: The command "ml.exe /c /nologo /Zi /Fo"Debug\file.obj" /Fl"$AssemblyDemo.lst" /I "C:\Irvine" /W3 /errorReport:prompt  /Tafile.asm" exited with code 1.
+﻿  Assembling BST.asm...
+BST.asm(4): error A2008: syntax error : leftNode
+BST.asm(5): error A2008: syntax error : rightNode
+BST.asm(16): fatal error A1010: unmatched block nesting : main
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\BuildCustomizations\masm.targets(50,5): error MSB3721: The command "ml.exe /c /nologo /Zi /Fo"Debug\BST.obj" /Fl"$AssemblyDemo.lst" /I "C:\Irvine" /W3 /errorReport:prompt  /TaBST.asm" exited with code 1.
