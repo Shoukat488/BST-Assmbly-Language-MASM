@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/13/19 22:08:19
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/14/19 23:50:40
 BST.asm							     Page 1 - 1
 
 
@@ -21,17 +21,24 @@ BST.asm							     Page 1 - 1
 			      C .LIST
 			      C 
 				insert proto  , left : dword , right: dword 
+				traverseInOrder proto , rootNode : ptr byte
  00000000			.data
  00000000  000003E8 [		bst dword 1000 dup(1)
 	    00000001
 	   ]
- 00000FA0 00000004		array dword 4,5,6,8,9
-	   00000005
-	   00000006
+ 00000FA0 00000005		array dword 5,4,8,6,7,10,2,18,14,15
+	   00000004
 	   00000008
-	   00000009
- 00000FB4 00000004		multi dword 4
- 00000FB8 00000000		tempIndex dword ?
+	   00000006
+	   00000007
+	   0000000A
+	   00000002
+	   00000012
+	   0000000E
+	   0000000F
+ 00000FC8 00000004		multi dword 4
+ 00000FCC 00000004		dividend dword 4
+ 00000FD0 00000000		tempIndex dword ?
  00000000			.code
  00000000			main PROC
 
@@ -42,102 +49,159 @@ BST.asm							     Page 1 - 1
  0000000F  B9 00000000		mov ecx , 0
 
  00000014  BE 00000000 R	mov esi , offset bst
- 00000019  B9 00000005		mov ecx, lengthof array
+ 00000019  B9 0000000A		mov ecx, lengthof array
  0000001E  BF 00000000 R	mov edi , offset bst
  00000023			l1:
  00000023  8B 9A 00000FA0 R	mov ebx, array[edx]
- 00000029  89 15 00000FB8 R	mov tempIndex , edx
+ 00000029  89 15 00000FD0 R	mov tempIndex , edx
 
 				invoke insert  , addr [ bst + 4 ] , addr [ bst + 8 ] 
+ 0000003E  BF 00000000 R	mov edi , offset bst
+ 00000043  8B 15 00000FD0 R	mov edx , tempIndex
+ 00000049  83 C2 04		add edx , 4
 
- 0000003E  8B 15 00000FB8 R	mov edx , tempIndex
- 00000044  83 C2 04		add edx , 4
+ 0000004C  E2 D5		loop l1
 
- 00000047  E2 DA		loop l1
+ 0000004E  E8 00000000 E	call crlf
 
- 00000049  B9 00000046		mov ecx , 70
- 0000004E  BE 00000000		mov esi , 0
+ 00000053  BA 00000000		mov edx , 0
+ 00000058  B8 00000000		mov eax , 0
+ 0000005D  BB 00000000		mov ebx , 0
+ 00000062  B9 00000000		mov ecx , 0
 
- 00000053			l2:
- 00000053  8B 86 00000000 R	mov eax , bst[esi]
- 00000059  E8 00000000 E	call writeDec
- 0000005E  E8 00000000 E	call crlf
- 00000063  83 C6 04		add esi , 4
- 00000066  E2 EB		loop l2
+ 00000067  BE 00000000 R	mov esi , offset bst
+				invoke traverseInOrder , addr bst
 
 				exit
 
 
- 0000006F			main endp
- 0000006F			insert proc , left : dword , right: dword 
+ 0000007D			main endp
+ 0000007D			insert proc , left : dword , right: dword 
 
- 00000072  3B 1F		cmp ebx , [edi]
- 00000074  74 76		je final
+ 00000080  3B 1F		cmp ebx , [edi]
+ 00000082  0F 84 000000BF	je final
 
- 00000076  8B 07		mov eax , [edi]
- 00000078  83 F8 01		cmp eax , 1
- 0000007B  74 6B		je assigValueAtRoot
+ 00000088  8B 07		mov eax , [edi]
+ 0000008A  83 F8 01		cmp eax , 1
+ 0000008D  0F 84 000000A4	je assigValueAtRoot
 
- 0000007D  3B D8		cmp  ebx , eax
- 0000007F  72 02		jb leftNode
- 00000081  EB 33		jmp rightNode
+ 00000093  3B D8		cmp  ebx , eax
+ 00000095  72 02		jb leftNode
+ 00000097  EB 4F		jmp rightNode
 
- 00000083			leftNode:
- 00000083  83 7D 08 01		cmp [left] , 1
- 00000087  74 28		je assignValueAtLeft
+ 00000099			leftNode:
+ 00000099  8B 45 08		mov eax, [left]
+ 0000009C  8B 00		mov eax , [eax]
+ 0000009E  83 F8 01		cmp eax , 1
+ 000000A1  74 33		je assignValueAtLeft
 
- 00000089  8B 45 08		mov eax , left
- 0000008C  8B F8		mov edi , eax
- 0000008E  2B C6		sub eax , esi
- 00000090  F7 25 00000FB4 R	mul multi
- 00000096  01 45 08		add left , eax 
- 00000099  83 45 08 04		add left , 4
- 0000009D  01 45 0C		add right , eax
- 000000A0  83 45 0C 08		add right , 8
+ 000000A3  8B 45 08		mov eax , left
+ 000000A6  8B F8		mov edi , eax
+ 000000A8  2B C6		sub eax , esi
+ 000000AA  F7 25 00000FC8 R	mul multi
+ 000000B0  BA 00000000		mov edx , 0
+ 000000B5  F7 35 00000FCC R	div dividend
+ 000000BB  01 45 08		add left , eax 
+ 000000BE  83 45 08 04		add left , 4
+ 000000C2  01 45 0C		add right , eax
+ 000000C5  83 45 0C 08		add right , 8
 
 				invoke insert , left , right 
- 000000AF  EB 3B		jmp final
+ 000000D4  EB 71		jmp final
 
- 000000B1			assignValueAtLeft:
- 000000B1  89 5D 08		mov [left] , ebx
- 000000B4  EB 36		jmp final
+ 000000D6			assignValueAtLeft:
+ 000000D6  89 5D 08		mov [left] , ebx
+ 000000D9  8B 45 08		mov eax , [left]
+ 000000DC  E8 00000000 E	call writeDec
+ 000000E1  E8 00000000 E	call crlf
+ 000000E6  EB 5F		jmp final
 
- 000000B6			rightNode:
- 000000B6  83 7D 0C 01		cmp [right] ,1
- 000000BA  74 28		je assignValueAtRight
- 000000BC  8B 45 0C		mov eax , right
- 000000BF  8B F8		mov edi , eax
- 000000C1  2B C6		sub eax , esi
- 000000C3  F7 25 00000FB4 R	mul multi
- 000000C9  01 45 08		add left , eax 
- 000000CC  83 45 08 04		add left , 4
- 000000D0  01 45 0C		add right , eax
- 000000D3  83 45 0C 08		add right , 8
+ 000000E8			rightNode:
+ 000000E8  8B 45 0C		mov eax, [right]
+ 000000EB  8B 00		mov eax , [eax]
+ 000000ED  83 F8 01		cmp eax ,1
+ 000000F0  74 33		je assignValueAtRight
+ 000000F2  8B 45 0C		mov eax , right
+ 000000F5  8B F8		mov edi , eax
+ 000000F7  2B C6		sub eax , esi
+ 000000F9  F7 25 00000FC8 R	mul multi
+ 000000FF  BA 00000000		mov edx , 0
+ 00000104  F7 35 00000FCC R	div dividend
+ 0000010A  01 45 08		add left , eax 
+ 0000010D  83 45 08 04		add left , 4
+ 00000111  01 45 0C		add right , eax
+ 00000114  83 45 0C 08		add right , 8
 
 				invoke insert , left , right
- 000000E2  EB 08		jmp final
+ 00000123  EB 22		jmp final
 
- 000000E4			assignValueAtRight:
- 000000E4  89 1F		mov [edi] , ebx
- 000000E6  EB 04		jmp final
+ 00000125			assignValueAtRight:
+ 00000125  89 5D 0C		mov [right] , ebx
+ 00000128  8B 45 0C		mov eax , [right]
+ 0000012B  E8 00000000 E	call writeDec
+ 00000130  E8 00000000 E	call crlf
+ 00000135  EB 10		jmp final
 
- 000000E8			assigValueAtRoot:
- 000000E8  89 1F		mov [edi] , ebx
- 000000EA  EB 00		jmp final
+ 00000137			assigValueAtRoot:
+ 00000137  89 1F		mov [edi] , ebx
+ 00000139  8B 07		mov eax , [edi]
+ 0000013B  E8 00000000 E	call writeDec
+ 00000140  E8 00000000 E	call crlf
+ 00000145  EB 00		jmp final
 
- 000000EC			final:
+ 00000147			final:
 				ret
 
- 000000F0			insert endp
+ 0000014B			insert endp
 
- 000000F0			traverseInOrder proc
+ 0000014B			traverseInOrder proc , rootNode : ptr byte
 
+ 0000014E  8B 45 08		mov eax , rootNode
+ 00000151  8B 5D 08		mov ebx , rootNode
+ 00000154  2B C6		sub eax , esi
+ 00000156  F7 25 00000FC8 R	mul multi
+ 0000015C  BA 00000000		mov edx , 0
+ 00000161  F7 35 00000FCC R	div dividend
+ 00000167  03 D8		add ebx , eax
+ 00000169  83 C3 04		add ebx , 4
+ 0000016C  8B 03		mov eax , [ebx]
 
+ 0000016E  83 F8 01		cmp eax , 1
+ 00000171  75 3E		jne traverseLeftNode
 
+ 00000173			print:
+ 00000173  8B 45 08		mov eax , [rootNode]
+ 00000176  8B 00		mov eax , [eax]
+ 00000178  E8 00000000 E	call writeDec
+ 0000017D  E8 00000000 E	call crlf
 
- 000000F0			traverseInOrder endp
+ 00000182  8B 45 08		mov eax , rootNode
+ 00000185  8B 5D 08		mov ebx , rootNode
+ 00000188  2B C6		sub eax , esi
+ 0000018A  F7 25 00000FC8 R	mul multi
+ 00000190  BA 00000000		mov edx , 0
+ 00000195  F7 35 00000FCC R	div dividend
+ 0000019B  03 D8		add ebx , eax
+ 0000019D  83 C3 08		add ebx , 8
+ 000001A0  8B 03		mov eax , [ebx]
+
+ 000001A2  83 F8 01		cmp eax , 1
+ 000001A5  75 02		jne traverseRightNode
+ 000001A7  EB 10		jmp final
+
+ 000001A9			traverseRightNode:
+				invoke traverseInOrder , ebx
+ 000001AF  EB 08		jmp final
+
+ 000001B1			traverseLeftNode:
+				invoke traverseInOrder , ebx
+ 000001B7  EB BA		jmp print
+
+ 000001B9			final:
+				ret
+ 000001BD			traverseInOrder endp
 				end main
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/13/19 22:08:19
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/14/19 23:50:40
 BST.asm							     Symbols 2 - 1
 
 
@@ -231,8 +295,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000FBC Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000F0 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000FD4 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001BD Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -339,21 +403,25 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-insert . . . . . . . . . . . . .	P Near	 0000006F _TEXT	Length= 00000081 Public STDCALL
+insert . . . . . . . . . . . . .	P Near	 0000007D _TEXT	Length= 000000CE Public STDCALL
   left . . . . . . . . . . . . .	DWord	 bp + 00000008
   right  . . . . . . . . . . . .	DWord	 bp + 0000000C
-  leftNode . . . . . . . . . . .	L Near	 00000083 _TEXT	
-  assignValueAtLeft  . . . . . .	L Near	 000000B1 _TEXT	
-  rightNode  . . . . . . . . . .	L Near	 000000B6 _TEXT	
-  assignValueAtRight . . . . . .	L Near	 000000E4 _TEXT	
-  assigValueAtRoot . . . . . . .	L Near	 000000E8 _TEXT	
-  final  . . . . . . . . . . . .	L Near	 000000EC _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000006F Public STDCALL
+  leftNode . . . . . . . . . . .	L Near	 00000099 _TEXT	
+  assignValueAtLeft  . . . . . .	L Near	 000000D6 _TEXT	
+  rightNode  . . . . . . . . . .	L Near	 000000E8 _TEXT	
+  assignValueAtRight . . . . . .	L Near	 00000125 _TEXT	
+  assigValueAtRoot . . . . . . .	L Near	 00000137 _TEXT	
+  final  . . . . . . . . . . . .	L Near	 00000147 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000007D Public STDCALL
   l1 . . . . . . . . . . . . . .	L Near	 00000023 _TEXT	
-  l2 . . . . . . . . . . . . . .	L Near	 00000053 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-traverseInOrder  . . . . . . . .	P Near	 000000F0 _TEXT	Length= 00000000 Public STDCALL
+traverseInOrder  . . . . . . . .	P Near	 0000014B _TEXT	Length= 00000072 Public STDCALL
+  rootNode . . . . . . . . . . .	DWord	 bp + 00000008
+  print  . . . . . . . . . . . .	L Near	 00000173 _TEXT	
+  traverseRightNode  . . . . . .	L Near	 000001A9 _TEXT	
+  traverseLeftNode . . . . . . .	L Near	 000001B1 _TEXT	
+  final  . . . . . . . . . . . .	L Near	 000001B9 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -576,6 +644,7 @@ blue . . . . . . . . . . . . . .	Number	 00000001h
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 bst  . . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
+dividend . . . . . . . . . . . .	DWord	 00000FCC _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -586,9 +655,9 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-multi  . . . . . . . . . . . . .	DWord	 00000FB4 _DATA	
+multi  . . . . . . . . . . . . .	DWord	 00000FC8 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-tempIndex  . . . . . . . . . . .	DWord	 00000FB8 _DATA	
+tempIndex  . . . . . . . . . . .	DWord	 00000FD0 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
