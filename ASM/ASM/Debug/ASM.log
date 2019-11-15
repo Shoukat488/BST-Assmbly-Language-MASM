@@ -1,2 +1,4 @@
 ﻿  Assembling BST.asm...
+BST.asm(249): warning A6004: procedure argument or local not referenced : rootNode
+BST.asm(249): warning A6004: procedure argument or local not referenced : value
   ASM.vcxproj -> D:\Fast\Semester 3\COAL\finalProject\BST-Assmbly-Language-MASM\ASM\Debug\ASM.exe
