@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:01:26
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:30:43
 BST.asm							     Page 1 - 1
 
 
@@ -305,11 +305,57 @@ BST.asm							     Page 1 - 1
 
  00000251			searchInTree proc , rootNode : ptr byte , value : dword
 
- 00000251			searchInTree endp
-BST.asm(249) : warning A6004:procedure argument or local not referenced : rootNode
-BST.asm(249) : warning A6004:procedure argument or local not referenced : value
+ 00000254  8B 45 08		mov eax , [rootNode]
+ 00000257  8B 00		mov eax , [eax]
+ 00000259  8B 55 0C		mov edx , value
+ 0000025C  3B C2		cmp eax , edx
+ 0000025E  74 68		je found
+
+ 00000260  8B 45 08		mov eax , rootNode
+ 00000263  8B 5D 08		mov ebx , rootNode
+ 00000266  2D 000000C3 R	sub eax , offset bst
+ 0000026B  F7 25 00000034 R	mul multi
+ 00000271  BA 00000000		mov edx , 0
+ 00000276  F7 35 00000038 R	div dividend
+ 0000027C  03 D8		add ebx , eax
+ 0000027E  83 C3 04		add ebx , 4
+ 00000281  8B 03		mov eax , [ebx]
+
+ 00000283  83 F8 01		cmp eax , 1
+ 00000286  75 35		jne traverseLeftNode
+
+ 00000288			comeBack:
+ 00000288  8B 45 08		mov eax , rootNode
+ 0000028B  8B 5D 08		mov ebx , rootNode
+ 0000028E  2D 000000C3 R	sub eax , offset bst
+ 00000293  F7 25 00000034 R	mul multi
+ 00000299  BA 00000000		mov edx , 0
+ 0000029E  F7 35 00000038 R	div dividend
+ 000002A4  03 D8		add ebx , eax
+ 000002A6  83 C3 08		add ebx , 8
+ 000002A9  8B 03		mov eax , [ebx]
+
+ 000002AB  83 F8 01		cmp eax , 1
+ 000002AE  75 02		jne traverseRightNode
+ 000002B0  EB 1B		jmp final
+
+ 000002B2			traverseRightNode:
+				invoke searchInTree , ebx , value
+ 000002BB  EB 10		jmp final
+
+ 000002BD			traverseLeftNode:
+				invoke searchInTree , ebx , value
+ 000002C6  EB C0		jmp comeBack
+
+ 000002C8			found:
+ 000002C8  B9 00000001		mov ecx , 1
+
+ 000002CD			final:
+				ret
+
+ 000002D1			searchInTree endp
 				end main
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:01:26
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:30:43
 BST.asm							     Symbols 2 - 1
 
 
@@ -404,7 +450,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00001063 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000251 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000002D1 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -526,9 +572,14 @@ main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000011E Public 
   final  . . . . . . . . . . . .	L Near	 00000117 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-searchInTree . . . . . . . . . .	P Near	 00000251 _TEXT	Length= 00000000 Public STDCALL
+searchInTree . . . . . . . . . .	P Near	 00000251 _TEXT	Length= 00000080 Public STDCALL
   rootNode . . . . . . . . . . .	DWord	 bp + 00000008
   value  . . . . . . . . . . . .	DWord	 bp + 0000000C
+  comeBack . . . . . . . . . . .	L Near	 00000288 _TEXT	
+  traverseRightNode  . . . . . .	L Near	 000002B2 _TEXT	
+  traverseLeftNode . . . . . . .	L Near	 000002BD _TEXT	
+  found  . . . . . . . . . . . .	L Near	 000002C8 _TEXT	
+  final  . . . . . . . . . . . .	L Near	 000002CD _TEXT	
 traverseInOrder  . . . . . . . .	P Near	 000001DF _TEXT	Length= 00000072 Public STDCALL
   rootNode . . . . . . . . . . .	DWord	 bp + 00000008
   print  . . . . . . . . . . . .	L Near	 00000207 _TEXT	
@@ -780,5 +831,5 @@ white  . . . . . . . . . . . . .	Number	 0000000Fh
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
-	   2 Warnings
+	   0 Warnings
 	   0 Errors

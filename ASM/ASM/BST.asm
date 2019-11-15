@@ -246,5 +246,53 @@ traverseInOrder endp
 
 searchInTree proc , rootNode : ptr byte , value : dword
 
+mov eax , [rootNode]
+mov eax , [eax]
+mov edx , value
+cmp eax , edx
+je found
+
+mov eax , rootNode
+mov ebx , rootNode
+sub eax , offset bst
+mul multi
+mov edx , 0
+div dividend
+add ebx , eax
+add ebx , 4
+mov eax , [ebx]
+
+cmp eax , 1
+jne traverseLeftNode
+
+comeBack:
+mov eax , rootNode
+mov ebx , rootNode
+sub eax , offset bst
+mul multi
+mov edx , 0
+div dividend
+add ebx , eax
+add ebx , 8
+mov eax , [ebx]
+
+cmp eax , 1
+jne traverseRightNode
+jmp final
+
+traverseRightNode:
+invoke searchInTree , ebx , value
+jmp final
+
+traverseLeftNode:
+invoke searchInTree , ebx , value
+jmp comeBack
+
+found:
+mov ecx , 1
+
+final:
+ret
+
 searchInTree endp
 end main
