@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:30:43
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/16/19 12:46:08
 BST.asm							     Page 1 - 1
 
 
@@ -22,6 +22,8 @@ BST.asm							     Page 1 - 1
 			      C 
 				traverseInOrder proto , rootNode : ptr byte
 				searchInTree proto , rootNode : ptr byte , value : dword
+				findMax proto , rootNode : ptr byte
+				findMin proto , rootNode : ptr byte
  00000000			.data
  00000000 00000005		array dword 5,4,8,6,7,10,2,3,11,14,13,12,26
 	   00000004
@@ -39,51 +41,62 @@ BST.asm							     Page 1 - 1
  00000034 00000004		multi dword 4
  00000038 00000004		dividend dword 4
  0000003C 00000000		tempIndex dword ?
- 00000040 49 6E 73 65 72	p1 byte "Inserting values : ",0
+ 00000040 00000001		maxValue dword 1
+ 00000044 00000001		minValue dword 1
+ 00000048 49 6E 73 65 72	p1 byte "Inserting values : ",0
 	   74 69 6E 67 20
 	   76 61 6C 75 65
 	   73 20 3A 20 00
- 00000054 54 72 61 76 65	p2 byte "Traversing binray Tree in order",0
+ 0000005C 54 72 61 76 65	p2 byte "Traversing binray Tree in order",0
 	   72 73 69 6E 67
 	   20 62 69 6E 72
 	   61 79 20 54 72
 	   65 65 20 69 6E
 	   20 6F 72 64 65
 	   72 00
- 00000074 45 6E 74 65 72	p3 byte "Enter value to search in tree : ",0
+ 0000007C 45 6E 74 65 72	p3 byte "Enter value to search in tree : ",0
 	   20 76 61 6C 75
 	   65 20 74 6F 20
 	   73 65 61 72 63
 	   68 20 69 6E 20
 	   74 72 65 65 20
 	   3A 20 00
- 00000095 56 61 6C 75 65	foundString byte "Value found in tree ",0
+ 0000009D 56 61 6C 75 65	foundString byte "Value found in tree ",0
 	   20 66 6F 75 6E
 	   64 20 69 6E 20
 	   74 72 65 65 20
 	   00
- 000000AA 56 61 6C 75 65	nFoundString byte "Value not found in tree ",0
+ 000000B2 56 61 6C 75 65	nFoundString byte "Value not found in tree ",0
 	   20 6E 6F 74 20
 	   66 6F 75 6E 64
 	   20 69 6E 20 74
 	   72 65 65 20 00
- 000000C3  000003E8 [		bst dword 1000 dup(1)
+ 000000CB 4D 61 78 20 76	maxString byte "Max value in tree : ",0
+	   61 6C 75 65 20
+	   69 6E 20 74 72
+	   65 65 20 3A 20
+	   00
+ 000000E0 4D 69 6E 20 76	minString byte "Min value in tree ",0
+	   61 6C 75 65 20
+	   69 6E 20 74 72
+	   65 65 20 00
+ 000000F3  000003E8 [		bst dword 1000 dup(1)
 	    00000001
 	   ]
  00000000			.code
  00000000			main PROC
 				;-------------------------
- 00000000  BA 00000040 R	mov edx , offset p1
+ 00000000  BA 00000048 R	mov edx , offset p1
  00000005  E8 00000000 E	call writeString
  0000000A  E8 00000000 E	call crlf
  0000000F  BA 00000004		mov edx , 4
  00000014  B8 00000000		mov eax , 0
  00000019  BB 00000000		mov ebx , 0
  0000001E  B9 00000000		mov ecx , 0
- 00000023  C7 05 000000C3 R	mov [bst] , 5
+ 00000023  C7 05 000000F3 R	mov [bst] , 5
 	   00000005
  0000002D  B9 0000000D		mov ecx, lengthof array
- 00000032  BF 000000C3 R	mov edi , offset bst
+ 00000032  BF 000000F3 R	mov edi , offset bst
 
 
  00000037			l1:
@@ -91,13 +104,13 @@ BST.asm							     Page 1 - 1
  00000037  8B 9A 00000000 R	mov ebx, array[edx]
  0000003D  89 15 0000003C R	mov tempIndex , edx
 
- 00000043  68 000000C7 R	push offset [bst + 4]
- 00000048  68 000000CB R	push offset [bst + 8]
+ 00000043  68 000000F7 R	push offset [bst + 4]
+ 00000048  68 000000FB R	push offset [bst + 8]
 
- 0000004D  E8 000000CC		call insert
+ 0000004D  E8 00000110		call insert
 
  00000052  83 C4 08		add esp , 8
- 00000055  BF 000000C3 R	mov edi , offset bst
+ 00000055  BF 000000F3 R	mov edi , offset bst
  0000005A  8B 15 0000003C R	mov edx , tempIndex
  00000060  83 C2 04		add edx , 4
 
@@ -109,7 +122,7 @@ BST.asm							     Page 1 - 1
 
  00000074			l4:
 
- 00000074  8B 86 000000C3 R	mov eax , bst[esi]
+ 00000074  8B 86 000000F3 R	mov eax , bst[esi]
  0000007A  E8 00000000 E	call writeDec
  0000007F  E8 00000000 E	call crlf
  00000084  83 C6 04		add esi , 4
@@ -117,7 +130,7 @@ BST.asm							     Page 1 - 1
 				;-----------------------------------
  00000089  E8 00000000 E	call crlf
 
- 0000008E  BA 00000054 R	mov edx , offset p2
+ 0000008E  BA 0000005C R	mov edx , offset p2
  00000093  E8 00000000 E	call writeString
  00000098  E8 00000000 E	call crlf
 
@@ -126,13 +139,13 @@ BST.asm							     Page 1 - 1
  000000A7  BB 00000000		mov ebx , 0
  000000AC  B9 00000000		mov ecx , 0
 
- 000000B1  BE 000000C3 R	mov esi , offset bst
+ 000000B1  BE 000000F3 R	mov esi , offset bst
 				invoke traverseInOrder , addr bst
 
 
 				;----------------------------------------------
 
- 000000C0  BA 00000074 R	mov edx , offset p3
+ 000000C0  BA 0000007C R	mov edx , offset p3
  000000C5  E8 00000000 E	call writestring
  000000CA  E8 00000000 E	call crlf
  000000CF  E8 00000000 E	call readInt
@@ -147,215 +160,295 @@ BST.asm							     Page 1 - 1
  000000F3  EB 11		jmp notFound
 
  000000F5			found:
- 000000F5  BA 00000095 R	mov edx , offset foundString
+ 000000F5  BA 0000009D R	mov edx , offset foundString
  000000FA  E8 00000000 E	call writeString
  000000FF  E8 00000000 E	call crlf
- 00000104  EB 11		jmp final
+ 00000104  EB 55		jmp final
 
  00000106			notFound:
- 00000106  BA 000000AA R	mov edx , offset nFoundString
+ 00000106  BA 000000B2 R	mov edx , offset nFoundString
  0000010B  E8 00000000 E	call writeString
  00000110  E8 00000000 E	call crlf
- 00000115  EB 00		jmp final
 
- 00000117			final:
+
+
+				;-------------------------------------------
+
+				invoke findMax , offset bst
+ 0000011F  BA 000000CB R	mov edx , offset maxString
+ 00000124  E8 00000000 E	call writeString
+ 00000129  A1 00000040 R	mov eax , maxValue
+ 0000012E  E8 00000000 E	call writeDec
+ 00000133  E8 00000000 E	call crlf
+
+				;-------------------------------------------
+
+				invoke findMin , offset bst
+ 00000142  BA 000000E0 R	mov edx , offset minString
+ 00000147  E8 00000000 E	call writeString
+ 0000014C  A1 00000044 R	mov eax , minValue
+ 00000151  E8 00000000 E	call writeDec
+ 00000156  E8 00000000 E	call crlf
+
+
+ 0000015B			final:
 				exit
 
 
- 0000011E			main endp
+ 00000162			main endp
 				;//////////////////////////////////////////////// Insert Function //////////////////////////////////////////
- 0000011E			insert proc
+ 00000162			insert proc
 
- 0000011E  55			push ebp
- 0000011F  8B EC		mov ebp , esp
+ 00000162  55			push ebp
+ 00000163  8B EC		mov ebp , esp
 
- 00000121  3B 1F		cmp ebx , [edi]
- 00000123  0F 84 000000B0	je final
+ 00000165  3B 1F		cmp ebx , [edi]
+ 00000167  0F 84 000000B0	je final
 
- 00000129  8B 07		mov eax , [edi]
+ 0000016D  8B 07		mov eax , [edi]
 
- 0000012B  3B D8		cmp  ebx , eax
- 0000012D  72 02		jb leftNode
- 0000012F  EB 4C		jmp rightNode
+ 0000016F  3B D8		cmp  ebx , eax
+ 00000171  72 02		jb leftNode
+ 00000173  EB 4C		jmp rightNode
 
- 00000131			leftNode:
- 00000131  8B 45 0C		mov eax, [ebp + 12]
- 00000134  8B 00		mov eax , [eax]
- 00000136  83 F8 01		cmp eax , 1
- 00000139  74 2F		je assignValueAtLeft
+ 00000175			leftNode:
+ 00000175  8B 45 0C		mov eax, [ebp + 12]
+ 00000178  8B 00		mov eax , [eax]
+ 0000017A  83 F8 01		cmp eax , 1
+ 0000017D  74 2F		je assignValueAtLeft
 
- 0000013B  8B 45 0C		mov eax , [ebp + 12]
- 0000013E  8B F8		mov edi , eax
- 00000140  2D 000000C3 R	sub eax , offset bst
- 00000145  F7 25 00000034 R	mul multi
- 0000014B  BA 00000000		mov edx , 0
- 00000150  F7 35 00000038 R	div dividend
- 00000156  8B 75 0C		mov esi , [ebp + 12]
- 00000159  03 F0		add esi , eax 
+ 0000017F  8B 45 0C		mov eax , [ebp + 12]
+ 00000182  8B F8		mov edi , eax
+ 00000184  2D 000000F3 R	sub eax , offset bst
+ 00000189  F7 25 00000034 R	mul multi
+ 0000018F  BA 00000000		mov edx , 0
+ 00000194  F7 35 00000038 R	div dividend
+ 0000019A  8B 75 0C		mov esi , [ebp + 12]
+ 0000019D  03 F0		add esi , eax 
 
- 0000015B  83 C6 04		add esi , 4
- 0000015E  56			push esi
- 0000015F  83 C6 04		add esi , 4
- 00000162  56			push esi
+ 0000019F  83 C6 04		add esi , 4
+ 000001A2  56			push esi
+ 000001A3  83 C6 04		add esi , 4
+ 000001A6  56			push esi
 
- 00000163  E8 FFFFFFB6		call insert 
- 00000168  EB 6F		jmp final
+ 000001A7  E8 FFFFFFB6		call insert 
+ 000001AC  EB 6F		jmp final
 
- 0000016A			assignValueAtLeft:
- 0000016A  8B 75 0C		mov esi , [ebp + 12]
- 0000016D  89 1E		mov [esi] , ebx
- 0000016F  8B 06		mov eax , [esi]
- 00000171  E8 00000000 E	call writeDec
- 00000176  E8 00000000 E	call crlf
- 0000017B  EB 5C		jmp final
+ 000001AE			assignValueAtLeft:
+ 000001AE  8B 75 0C		mov esi , [ebp + 12]
+ 000001B1  89 1E		mov [esi] , ebx
+ 000001B3  8B 06		mov eax , [esi]
+ 000001B5  E8 00000000 E	call writeDec
+ 000001BA  E8 00000000 E	call crlf
+ 000001BF  EB 5C		jmp final
 
- 0000017D			rightNode:
- 0000017D  8B 45 08		mov eax, [ebp + 8]
- 00000180  8B 00		mov eax , [eax]
- 00000182  83 F8 01		cmp eax ,1
- 00000185  74 2F		je assignValueAtRight
- 00000187  8B 45 08		mov eax , [ebp + 8]
- 0000018A  8B F8		mov edi , eax
- 0000018C  2D 000000C3 R	sub eax , offset bst
- 00000191  F7 25 00000034 R	mul multi
- 00000197  BA 00000000		mov edx , 0
- 0000019C  F7 35 00000038 R	div dividend
- 000001A2  8B 75 08		mov esi , [ebp + 8]
- 000001A5  03 F0		add esi , eax 
+ 000001C1			rightNode:
+ 000001C1  8B 45 08		mov eax, [ebp + 8]
+ 000001C4  8B 00		mov eax , [eax]
+ 000001C6  83 F8 01		cmp eax ,1
+ 000001C9  74 2F		je assignValueAtRight
+ 000001CB  8B 45 08		mov eax , [ebp + 8]
+ 000001CE  8B F8		mov edi , eax
+ 000001D0  2D 000000F3 R	sub eax , offset bst
+ 000001D5  F7 25 00000034 R	mul multi
+ 000001DB  BA 00000000		mov edx , 0
+ 000001E0  F7 35 00000038 R	div dividend
+ 000001E6  8B 75 08		mov esi , [ebp + 8]
+ 000001E9  03 F0		add esi , eax 
 
- 000001A7  83 C6 04		add esi , 4
- 000001AA  56			push esi
- 000001AB  83 C6 04		add esi , 4
- 000001AE  56			push esi
+ 000001EB  83 C6 04		add esi , 4
+ 000001EE  56			push esi
+ 000001EF  83 C6 04		add esi , 4
+ 000001F2  56			push esi
 
- 000001AF  E8 FFFFFF6A		call insert
- 000001B4  EB 23		jmp final
+ 000001F3  E8 FFFFFF6A		call insert
+ 000001F8  EB 23		jmp final
 
- 000001B6			assignValueAtRight:
- 000001B6  8B 75 08		mov esi , [ebp + 8]
- 000001B9  89 1E		mov [esi] , ebx
- 000001BB  8B 06		mov eax , [esi]
- 000001BD  E8 00000000 E	call writeDec
- 000001C2  E8 00000000 E	call crlf
- 000001C7  EB 10		jmp final
+ 000001FA			assignValueAtRight:
+ 000001FA  8B 75 08		mov esi , [ebp + 8]
+ 000001FD  89 1E		mov [esi] , ebx
+ 000001FF  8B 06		mov eax , [esi]
+ 00000201  E8 00000000 E	call writeDec
+ 00000206  E8 00000000 E	call crlf
+ 0000020B  EB 10		jmp final
 
- 000001C9			assigValueAtRoot:
- 000001C9  89 1F		mov [edi] , ebx
- 000001CB  8B 07		mov eax , [edi]
- 000001CD  E8 00000000 E	call writeDec
- 000001D2  E8 00000000 E	call crlf
- 000001D7  EB 00		jmp final
+ 0000020D			assigValueAtRoot:
+ 0000020D  89 1F		mov [edi] , ebx
+ 0000020F  8B 07		mov eax , [edi]
+ 00000211  E8 00000000 E	call writeDec
+ 00000216  E8 00000000 E	call crlf
+ 0000021B  EB 00		jmp final
 
- 000001D9			final:
+ 0000021D			final:
 
- 000001D9  8B E5		mov esp , ebp
- 000001DB  5D			pop ebp 
+ 0000021D  8B E5		mov esp , ebp
+ 0000021F  5D			pop ebp 
 
- 000001DC  C2 0008		ret 8
+ 00000220  C2 0008		ret 8
 
- 000001DF			insert endp
+ 00000223			insert endp
 				;///////////////////////////////////////////////// Traverse Function ///////////////////////////////////////
- 000001DF			traverseInOrder proc , rootNode : ptr byte
+ 00000223			traverseInOrder proc , rootNode : ptr byte
 
- 000001E2  8B 45 08		mov eax , rootNode
- 000001E5  8B 5D 08		mov ebx , rootNode
- 000001E8  2B C6		sub eax , esi
- 000001EA  F7 25 00000034 R	mul multi
- 000001F0  BA 00000000		mov edx , 0
- 000001F5  F7 35 00000038 R	div dividend
- 000001FB  03 D8		add ebx , eax
- 000001FD  83 C3 04		add ebx , 4
- 00000200  8B 03		mov eax , [ebx]
+ 00000226  8B 45 08		mov eax , rootNode
+ 00000229  8B 5D 08		mov ebx , rootNode
+ 0000022C  2B C6		sub eax , esi
+ 0000022E  F7 25 00000034 R	mul multi
+ 00000234  BA 00000000		mov edx , 0
+ 00000239  F7 35 00000038 R	div dividend
+ 0000023F  03 D8		add ebx , eax
+ 00000241  83 C3 04		add ebx , 4
+ 00000244  8B 03		mov eax , [ebx]
 
- 00000202  83 F8 01		cmp eax , 1
- 00000205  75 3E		jne traverseLeftNode
+ 00000246  83 F8 01		cmp eax , 1
+ 00000249  75 3E		jne traverseLeftNode
 
- 00000207			print:
- 00000207  8B 45 08		mov eax , [rootNode]
- 0000020A  8B 00		mov eax , [eax]
- 0000020C  E8 00000000 E	call writeDec
- 00000211  E8 00000000 E	call crlf
+ 0000024B			print:
+ 0000024B  8B 45 08		mov eax , [rootNode]
+ 0000024E  8B 00		mov eax , [eax]
+ 00000250  E8 00000000 E	call writeDec
+ 00000255  E8 00000000 E	call crlf
 
- 00000216  8B 45 08		mov eax , rootNode
- 00000219  8B 5D 08		mov ebx , rootNode
- 0000021C  2B C6		sub eax , esi
- 0000021E  F7 25 00000034 R	mul multi
- 00000224  BA 00000000		mov edx , 0
- 00000229  F7 35 00000038 R	div dividend
- 0000022F  03 D8		add ebx , eax
- 00000231  83 C3 08		add ebx , 8
- 00000234  8B 03		mov eax , [ebx]
+ 0000025A  8B 45 08		mov eax , rootNode
+ 0000025D  8B 5D 08		mov ebx , rootNode
+ 00000260  2B C6		sub eax , esi
+ 00000262  F7 25 00000034 R	mul multi
+ 00000268  BA 00000000		mov edx , 0
+ 0000026D  F7 35 00000038 R	div dividend
+ 00000273  03 D8		add ebx , eax
+ 00000275  83 C3 08		add ebx , 8
+ 00000278  8B 03		mov eax , [ebx]
 
- 00000236  83 F8 01		cmp eax , 1
- 00000239  75 02		jne traverseRightNode
- 0000023B  EB 10		jmp final
+ 0000027A  83 F8 01		cmp eax , 1
+ 0000027D  75 02		jne traverseRightNode
+ 0000027F  EB 10		jmp final
 
- 0000023D			traverseRightNode:
+ 00000281			traverseRightNode:
 				invoke traverseInOrder , ebx
- 00000243  EB 08		jmp final
+ 00000287  EB 08		jmp final
 
- 00000245			traverseLeftNode:
+ 00000289			traverseLeftNode:
 				invoke traverseInOrder , ebx
- 0000024B  EB BA		jmp print
+ 0000028F  EB BA		jmp print
 
- 0000024D			final:
+ 00000291			final:
 				ret
- 00000251			traverseInOrder endp
+ 00000295			traverseInOrder endp
 				;////////////////////////////////////////// Search Function ////////////////////////////////////////////
 
- 00000251			searchInTree proc , rootNode : ptr byte , value : dword
+ 00000295			searchInTree proc , rootNode : ptr byte , value : dword
 
- 00000254  8B 45 08		mov eax , [rootNode]
- 00000257  8B 00		mov eax , [eax]
- 00000259  8B 55 0C		mov edx , value
- 0000025C  3B C2		cmp eax , edx
- 0000025E  74 68		je found
+ 00000298  8B 45 08		mov eax , [rootNode]
+ 0000029B  8B 00		mov eax , [eax]
+ 0000029D  8B 55 0C		mov edx , value
+ 000002A0  3B C2		cmp eax , edx
+ 000002A2  74 68		je found
 
- 00000260  8B 45 08		mov eax , rootNode
- 00000263  8B 5D 08		mov ebx , rootNode
- 00000266  2D 000000C3 R	sub eax , offset bst
- 0000026B  F7 25 00000034 R	mul multi
- 00000271  BA 00000000		mov edx , 0
- 00000276  F7 35 00000038 R	div dividend
- 0000027C  03 D8		add ebx , eax
- 0000027E  83 C3 04		add ebx , 4
- 00000281  8B 03		mov eax , [ebx]
+ 000002A4  8B 45 08		mov eax , rootNode
+ 000002A7  8B 5D 08		mov ebx , rootNode
+ 000002AA  2D 000000F3 R	sub eax , offset bst
+ 000002AF  F7 25 00000034 R	mul multi
+ 000002B5  BA 00000000		mov edx , 0
+ 000002BA  F7 35 00000038 R	div dividend
+ 000002C0  03 D8		add ebx , eax
+ 000002C2  83 C3 04		add ebx , 4
+ 000002C5  8B 03		mov eax , [ebx]
 
- 00000283  83 F8 01		cmp eax , 1
- 00000286  75 35		jne traverseLeftNode
+ 000002C7  83 F8 01		cmp eax , 1
+ 000002CA  75 35		jne traverseLeftNode
 
- 00000288			comeBack:
- 00000288  8B 45 08		mov eax , rootNode
- 0000028B  8B 5D 08		mov ebx , rootNode
- 0000028E  2D 000000C3 R	sub eax , offset bst
- 00000293  F7 25 00000034 R	mul multi
- 00000299  BA 00000000		mov edx , 0
- 0000029E  F7 35 00000038 R	div dividend
- 000002A4  03 D8		add ebx , eax
- 000002A6  83 C3 08		add ebx , 8
- 000002A9  8B 03		mov eax , [ebx]
+ 000002CC			comeBack:
+ 000002CC  8B 45 08		mov eax , rootNode
+ 000002CF  8B 5D 08		mov ebx , rootNode
+ 000002D2  2D 000000F3 R	sub eax , offset bst
+ 000002D7  F7 25 00000034 R	mul multi
+ 000002DD  BA 00000000		mov edx , 0
+ 000002E2  F7 35 00000038 R	div dividend
+ 000002E8  03 D8		add ebx , eax
+ 000002EA  83 C3 08		add ebx , 8
+ 000002ED  8B 03		mov eax , [ebx]
 
- 000002AB  83 F8 01		cmp eax , 1
- 000002AE  75 02		jne traverseRightNode
- 000002B0  EB 1B		jmp final
+ 000002EF  83 F8 01		cmp eax , 1
+ 000002F2  75 02		jne traverseRightNode
+ 000002F4  EB 1B		jmp final
 
- 000002B2			traverseRightNode:
+ 000002F6			traverseRightNode:
 				invoke searchInTree , ebx , value
- 000002BB  EB 10		jmp final
+ 000002FF  EB 10		jmp final
 
- 000002BD			traverseLeftNode:
+ 00000301			traverseLeftNode:
 				invoke searchInTree , ebx , value
- 000002C6  EB C0		jmp comeBack
+ 0000030A  EB C0		jmp comeBack
 
- 000002C8			found:
- 000002C8  B9 00000001		mov ecx , 1
+ 0000030C			found:
+ 0000030C  B9 00000001		mov ecx , 1
 
- 000002CD			final:
+ 00000311			final:
 				ret
 
- 000002D1			searchInTree endp
+ 00000315			searchInTree endp
+				;///////////////////////////////////// Max Function ///////////////////////////////////////////
+ 00000315			findMax proc , rootNode : ptr byte
+
+
+
+ 00000318  8B 45 08		mov eax , rootNode
+ 0000031B  8B 5D 08		mov ebx , rootNode
+ 0000031E  2D 000000F3 R	sub eax , offset bst
+ 00000323  F7 25 00000034 R	mul multi
+ 00000329  BA 00000000		mov edx , 0
+ 0000032E  F7 35 00000038 R	div dividend
+ 00000334  03 D8		add ebx , eax
+ 00000336  83 C3 08		add ebx , 8
+ 00000339  8B 03		mov eax , [ebx]
+
+ 0000033B  83 F8 01		cmp eax , 1
+ 0000033E  75 02		jne traverseRightNode
+ 00000340  EB 08		jmp foundMaxValue
+
+ 00000342			traverseRightNode:
+				invoke findMax , ebx 
+ 00000348  EB 0A		jmp final
+
+ 0000034A			foundMaxValue:
+ 0000034A  8B 45 08		mov eax , [rootNode]
+ 0000034D  8B 00		mov eax , [eax]
+ 0000034F  A3 00000040 R	mov MaxValue , eax
+
+ 00000354			final:
+				ret
+ 00000358			findMax endp
+				;///////////////////////////////////// Min Function ///////////////////////////////////////////
+ 00000358			findMin proc , rootNode : ptr byte
+
+ 0000035B  8B 45 08		mov eax , rootNode
+ 0000035E  8B 5D 08		mov ebx , rootNode
+ 00000361  2D 000000F3 R	sub eax , offset bst
+ 00000366  F7 25 00000034 R	mul multi
+ 0000036C  BA 00000000		mov edx , 0
+ 00000371  F7 35 00000038 R	div dividend
+ 00000377  03 D8		add ebx , eax
+ 00000379  83 C3 04		add ebx , 4
+ 0000037C  8B 03		mov eax , [ebx]
+
+ 0000037E  83 F8 01		cmp eax , 1
+ 00000381  75 02		jne traverseLeftNode
+ 00000383  EB 08		jmp foundMaxValue
+
+ 00000385			traverseLeftNode:
+				invoke findMin , ebx 
+ 0000038B  EB 0A		jmp final
+
+ 0000038D			foundMaxValue:
+ 0000038D  8B 45 08		mov eax , [rootNode]
+ 00000390  8B 00		mov eax , [eax]
+ 00000392  A3 00000044 R	mov minValue , eax
+
+ 00000397			final:
+				ret
+ 0000039B			findMin endp
 				end main
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/15/19 19:30:43
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/16/19 12:46:08
 BST.asm							     Symbols 2 - 1
 
 
@@ -449,8 +542,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00001063 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000002D1 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00001093 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000039B Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -557,35 +650,45 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-insert . . . . . . . . . . . . .	P Near	 0000011E _TEXT	Length= 000000C1 Public STDCALL
-  leftNode . . . . . . . . . . .	L Near	 00000131 _TEXT	
-  assignValueAtLeft  . . . . . .	L Near	 0000016A _TEXT	
-  rightNode  . . . . . . . . . .	L Near	 0000017D _TEXT	
-  assignValueAtRight . . . . . .	L Near	 000001B6 _TEXT	
-  assigValueAtRoot . . . . . . .	L Near	 000001C9 _TEXT	
-  final  . . . . . . . . . . . .	L Near	 000001D9 _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000011E Public STDCALL
+findMax  . . . . . . . . . . . .	P Near	 00000315 _TEXT	Length= 00000043 Public STDCALL
+  rootNode . . . . . . . . . . .	DWord	 bp + 00000008
+  traverseRightNode  . . . . . .	L Near	 00000342 _TEXT	
+  foundMaxValue  . . . . . . . .	L Near	 0000034A _TEXT	
+  final  . . . . . . . . . . . .	L Near	 00000354 _TEXT	
+findMin  . . . . . . . . . . . .	P Near	 00000358 _TEXT	Length= 00000043 Public STDCALL
+  rootNode . . . . . . . . . . .	DWord	 bp + 00000008
+  traverseLeftNode . . . . . . .	L Near	 00000385 _TEXT	
+  foundMaxValue  . . . . . . . .	L Near	 0000038D _TEXT	
+  final  . . . . . . . . . . . .	L Near	 00000397 _TEXT	
+insert . . . . . . . . . . . . .	P Near	 00000162 _TEXT	Length= 000000C1 Public STDCALL
+  leftNode . . . . . . . . . . .	L Near	 00000175 _TEXT	
+  assignValueAtLeft  . . . . . .	L Near	 000001AE _TEXT	
+  rightNode  . . . . . . . . . .	L Near	 000001C1 _TEXT	
+  assignValueAtRight . . . . . .	L Near	 000001FA _TEXT	
+  assigValueAtRoot . . . . . . .	L Near	 0000020D _TEXT	
+  final  . . . . . . . . . . . .	L Near	 0000021D _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000162 Public STDCALL
   l1 . . . . . . . . . . . . . .	L Near	 00000037 _TEXT	
   l4 . . . . . . . . . . . . . .	L Near	 00000074 _TEXT	
   found  . . . . . . . . . . . .	L Near	 000000F5 _TEXT	
   notFound . . . . . . . . . . .	L Near	 00000106 _TEXT	
-  final  . . . . . . . . . . . .	L Near	 00000117 _TEXT	
+  final  . . . . . . . . . . . .	L Near	 0000015B _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-searchInTree . . . . . . . . . .	P Near	 00000251 _TEXT	Length= 00000080 Public STDCALL
+searchInTree . . . . . . . . . .	P Near	 00000295 _TEXT	Length= 00000080 Public STDCALL
   rootNode . . . . . . . . . . .	DWord	 bp + 00000008
   value  . . . . . . . . . . . .	DWord	 bp + 0000000C
-  comeBack . . . . . . . . . . .	L Near	 00000288 _TEXT	
-  traverseRightNode  . . . . . .	L Near	 000002B2 _TEXT	
-  traverseLeftNode . . . . . . .	L Near	 000002BD _TEXT	
-  found  . . . . . . . . . . . .	L Near	 000002C8 _TEXT	
-  final  . . . . . . . . . . . .	L Near	 000002CD _TEXT	
-traverseInOrder  . . . . . . . .	P Near	 000001DF _TEXT	Length= 00000072 Public STDCALL
+  comeBack . . . . . . . . . . .	L Near	 000002CC _TEXT	
+  traverseRightNode  . . . . . .	L Near	 000002F6 _TEXT	
+  traverseLeftNode . . . . . . .	L Near	 00000301 _TEXT	
+  found  . . . . . . . . . . . .	L Near	 0000030C _TEXT	
+  final  . . . . . . . . . . . .	L Near	 00000311 _TEXT	
+traverseInOrder  . . . . . . . .	P Near	 00000223 _TEXT	Length= 00000072 Public STDCALL
   rootNode . . . . . . . . . . .	DWord	 bp + 00000008
-  print  . . . . . . . . . . . .	L Near	 00000207 _TEXT	
-  traverseRightNode  . . . . . .	L Near	 0000023D _TEXT	
-  traverseLeftNode . . . . . . .	L Near	 00000245 _TEXT	
-  final  . . . . . . . . . . . .	L Near	 0000024D _TEXT	
+  print  . . . . . . . . . . . .	L Near	 0000024B _TEXT	
+  traverseRightNode  . . . . . .	L Near	 00000281 _TEXT	
+  traverseLeftNode . . . . . . .	L Near	 00000289 _TEXT	
+  final  . . . . . . . . . . . .	L Near	 00000291 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -806,11 +909,11 @@ array  . . . . . . . . . . . . .	DWord	 00000000 _DATA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-bst  . . . . . . . . . . . . . .	DWord	 000000C3 _DATA	
+bst  . . . . . . . . . . . . . .	DWord	 000000F3 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 dividend . . . . . . . . . . . .	DWord	 00000038 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-foundString  . . . . . . . . . .	Byte	 00000095 _DATA	
+foundString  . . . . . . . . . .	Byte	 0000009D _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
@@ -820,11 +923,15 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+maxString  . . . . . . . . . . .	Byte	 000000CB _DATA	
+maxValue . . . . . . . . . . . .	DWord	 00000040 _DATA	
+minString  . . . . . . . . . . .	Byte	 000000E0 _DATA	
+minValue . . . . . . . . . . . .	DWord	 00000044 _DATA	
 multi  . . . . . . . . . . . . .	DWord	 00000034 _DATA	
-nFoundString . . . . . . . . . .	Byte	 000000AA _DATA	
-p1 . . . . . . . . . . . . . . .	Byte	 00000040 _DATA	
-p2 . . . . . . . . . . . . . . .	Byte	 00000054 _DATA	
-p3 . . . . . . . . . . . . . . .	Byte	 00000074 _DATA	
+nFoundString . . . . . . . . . .	Byte	 000000B2 _DATA	
+p1 . . . . . . . . . . . . . . .	Byte	 00000048 _DATA	
+p2 . . . . . . . . . . . . . . .	Byte	 0000005C _DATA	
+p3 . . . . . . . . . . . . . . .	Byte	 0000007C _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 tempIndex  . . . . . . . . . . .	DWord	 0000003C _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   

@@ -1,16 +1,22 @@
 INCLUDE Irvine32.inc 
 traverseInOrder proto , rootNode : ptr byte
 searchInTree proto , rootNode : ptr byte , value : dword
+findMax proto , rootNode : ptr byte
+findMin proto , rootNode : ptr byte
 .data
 array dword 5,4,8,6,7,10,2,3,11,14,13,12,26
 multi dword 4
 dividend dword 4
 tempIndex dword ?
+maxValue dword 1
+minValue dword 1
 p1 byte "Inserting values : ",0
 p2 byte "Traversing binray Tree in order",0
 p3 byte "Enter value to search in tree : ",0
 foundString byte "Value found in tree ",0
 nFoundString byte "Value not found in tree ",0
+maxString byte "Max value in tree : ",0
+minString byte "Min value in tree ",0
 bst dword 1000 dup(1)
 .code
 main PROC
@@ -97,7 +103,27 @@ notFound:
 mov edx , offset nFoundString
 call writeString
 call crlf
-jmp final
+
+
+
+;-------------------------------------------
+
+invoke findMax , offset bst
+mov edx , offset maxString
+call writeString
+mov eax , maxValue
+call writeDec
+call crlf
+
+;-------------------------------------------
+
+invoke findMin , offset bst
+mov edx , offset minString
+call writeString
+mov eax , minValue
+call writeDec
+call crlf
+
 
 final:
 exit
@@ -295,4 +321,64 @@ final:
 ret
 
 searchInTree endp
+;///////////////////////////////////// Max Function ///////////////////////////////////////////
+findMax proc , rootNode : ptr byte
+
+
+
+mov eax , rootNode
+mov ebx , rootNode
+sub eax , offset bst
+mul multi
+mov edx , 0
+div dividend
+add ebx , eax
+add ebx , 8
+mov eax , [ebx]
+
+cmp eax , 1
+jne traverseRightNode
+jmp foundMaxValue
+
+traverseRightNode:
+invoke findMax , ebx 
+jmp final
+
+foundMaxValue:
+mov eax , [rootNode]
+mov eax , [eax]
+mov MaxValue , eax
+
+final:
+ret
+findMax endp
+;///////////////////////////////////// Min Function ///////////////////////////////////////////
+findMin proc , rootNode : ptr byte
+
+mov eax , rootNode
+mov ebx , rootNode
+sub eax , offset bst
+mul multi
+mov edx , 0
+div dividend
+add ebx , eax
+add ebx , 4
+mov eax , [ebx]
+
+cmp eax , 1
+jne traverseLeftNode
+jmp foundMaxValue
+
+traverseLeftNode:
+invoke findMin , ebx 
+jmp final
+
+foundMaxValue:
+mov eax , [rootNode]
+mov eax , [eax]
+mov minValue , eax
+
+final:
+ret
+findMin endp
 end main
