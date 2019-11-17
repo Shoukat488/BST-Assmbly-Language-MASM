@@ -1,4 +1,5 @@
-INCLUDE Irvine32.inc 
+INCLUDE Irvine32.inc
+INCLUDE Macros.inc
 traverseInOrder proto , rootNode : ptr dword
 searchInTree proto , rootNode : ptr dword , value : dword
 deleteNode proto , rootNode: ptr dword , value : dword
@@ -6,6 +7,13 @@ preOrder proto ,preNode : ptr dword , currentNode : ptr dowrd
 findMax proto , rootNode : ptr dword
 findMin proto , rootNode : ptr dword
 .data
+bstString byte "********   *******   *		
+				*		*	  *		 * *
+				*		*	  *		 *	 *	
+				*********	  *		 *	  *
+				*		*     *		 *		*
+				********   *******	 *		  *
+"
 array dword 5,4,8,6,7,10,2,3,11,14,13,12,26,9,15
 multi dword 4
 dividend dword 4
@@ -101,15 +109,15 @@ found:
 mov edx , offset foundString
 call writeString
 call crlf
-jmp final
+jmp final1
 
 notFound:
 mov edx , offset nFoundString
 call writeString
 call crlf
+jmp final1
 
-
-
+final1:
 ;-------------------------------------------
 
 invoke findMax , offset bst
@@ -129,9 +137,19 @@ call writeDec
 call crlf
 
 ;-------------------------------------------
-mov eax , 7
+mwriteln "Enter value to delete : "
+call readInt
 invoke deleteNode , offset bst , eax
-final:
+
+;-------------------------------------------
+
+mov edx , 0
+mov eax , 0
+mov ebx , 0
+mov ecx , 0
+
+mov esi , offset bst
+invoke traverseInOrder , addr bst
 exit
 
 
@@ -431,7 +449,7 @@ mov ebx , rootNode
 mov ebx , [ebx]
 
 cmp ebx , 1
-jmp valueNotFound
+je valueNotFound
 
 mov eax , rootNode
 mov esi , eax
@@ -443,26 +461,27 @@ add esi , 8
  
 mov ecx , [edi]
 cmp ecx , 1
-je case1
-jmp case2
+je case1 ; if left is null
+jmp case2 ; else case
 
 case1:
 mov ecx , [esi]
 cmp ecx , 1
-jne case2
+jne case2 ; if right is not null
 
 mov eax , 1
-mov [rootNode] , eax
+mov ebx , rootNode
+mov [ebx] , eax
 jmp valueDeleted
 
 case2:
 mov ecx , [esi]
-cmp ecx , 1
-jne deleteAtRight
-jmp deleteAtLeft
+cmp ecx , 1 
+jne deleteAtRight ; if right is not null
+jmp deleteAtLeft ; if rght is null
 
 deleteAtRight:
-mov ecx , [esi]
+mov ecx , [edi]
 cmp ecx , 1
 jne case3
 mov eax , rootNode
@@ -470,9 +489,6 @@ invoke preOrder , eax , esi
 jmp valueDeleted
 
 deleteAtLeft:
-mov ecx , [edi]
-cmp ecx , 1
-jne case3
 mov eax , rootNode
 invoke preOrder ,eax , edi
 jmp valueDeleted
@@ -500,7 +516,8 @@ loop l2
 
 foundValue:
 mov ebx , [edx]
-mov [rootNode] , ebx
+mov eax , rootNode
+mov [eax] , ebx
 
 mov eax , edx
 sub edx , offset bst
@@ -508,7 +525,7 @@ add edx , eax
 add edx , 8
 
 mov ebx , [edx]
-mov edx , 1
+cmp ebx , 1
 jne callAnotheFun
 
 mov ebx , 1
@@ -538,10 +555,12 @@ preOrder proc ,preNode : ptr dword , currentNode : ptr dowrd
 
 mov eax , currentNode
 mov eax , [eax]
-mov [preNode] , eax
+mov esi , preNode
+mov [esi] , eax
 
 mov eax, 1
-mov [currentNode] , eax
+mov esi , currentNode
+mov [esi] , eax
 
 mov eax , currentNode
 sub eax , offset bst
