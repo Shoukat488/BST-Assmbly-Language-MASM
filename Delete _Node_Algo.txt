@@ -1,0 +1,134 @@
+Algorithm Delete_Array_BST(Tree[1:N], element)
+
+* Tree is an array of n elements representing the BST
+
+* ‘element’ is the element to the inserted
+
+* The empty positions in an array are denoted by -1
+
+* temp is used to find the subscript of the element to be deleted
+
+* inorder_N is the inorder successor
+
+
+//Search for the ‘element’ in the BST
+
+1. temp = 1
+
+2. while((Tree[temp]!=element) && (Tree[temp] != -1)) // Loop until the element is found
+
+3.          if(element < Tree[temp])
+
+4.                  temp = 2 * temp // Move left
+
+5.          end if
+
+6.          else
+
+7.                 temp = 2 * temp + 1 //Move right
+
+8.        end else
+
+9. end while
+
+
+10. if(Tree[temp] != -1) // If the element is found
+
+
+// Case 1 - Delete leaf node
+
+11.         if((Tree[2*temp] == -1) and (Tree[2*temp+1] == -1))
+
+12.                 Tree[temp] = -1
+
+13.          end if
+
+
+// Case 2 - Delete node with one child
+
+14.          else if((Tree[2*temp] == -1) or (Tree[2*temp+1] == -1))
+
+15.                        if(Tree[2*temp] != -1) // Is the child in the left of temp
+
+16.                             Call Preorder(Tree[1:N], 2*temp) //Update the whole subtree
+
+17.                         end if
+
+18.                         else
+
+19.                              Call Preorder(Tree[1:N], 2*temp+1)
+
+20.                          end else
+
+21.          end else if
+
+
+//Case 3 – Delete node with 2 children
+
+22.         else
+
+23.              inorder_N = 2*temp+1 // Inorder successor is surely in the right subtree
+
+24.              Repeat steps 48,49 while Tree[2*inorder_N] ≠ -1
+
+25.                        inorder_N = 2*inorder_N
+
+26.               end Repeat
+
+27.               Tree[temp] = Tree[inorder_N] // Replace with inorder successor
+
+28.               if(Tree[2*inorder_N + 1] == -1) // Inorder successor has no child
+
+29.                       Tree[inorder_N] = -1
+
+30.               end if
+
+31.               else // Inorder successor has one child
+
+32.                       Call Preorder(Tree[1:N], 2*inorder_N+1)
+
+33.               end else
+
+34.          end else
+
+35.    end if
+
+36.    else
+
+37.         Print “Element not Found”
+
+38.    end else
+
+39.  end Delete_Array_BST
+
+
+
+Algorithm Preorder(Tree[1:N], root)
+
+*  Tree is the array holding the tree
+
+*  root is the subscript of the root node
+
+*  The empty positions in an array are denoted by -1
+
+
+1. Tree[ceil(root/2)-1] = Tree[root]
+
+2. Tree[root] = -1
+
+3. if(Tree[2*root] ≠ -1) // A left child exists
+
+4.      call Preorder(Tree[], 2 * root)
+
+5. end if
+
+6. if ( Tree[2*root+1] ≠ -1) // Does a right child exist
+
+7.      call Preorder(Tree[], 2 * root+1)
+
+8. end if
+
+9. end Preorder
+
+Data Structures can be read and understood in a simplified manner in the book available at
+http://www.wileyindia.com/data-structures.html
