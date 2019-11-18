@@ -6,20 +6,16 @@ deleteNode proto , rootNode: ptr dword , value : dword
 preOrder proto ,preNode : ptr dword , currentNode : ptr dowrd
 findMax proto , rootNode : ptr dword
 findMin proto , rootNode : ptr dword
+
 .data
-bstString byte "********   *******   *		
-				*		*	  *		 * *
-				*		*	  *		 *	 *	
-				*********	  *		 *	  *
-				*		*     *		 *		*
-				********   *******	 *		  *
-"
-array dword 5,4,8,6,7,10,2,3,11,14,13,12,26,9,15
+
 multi dword 4
 dividend dword 4
 tempIndex dword ?
-maxValue dword 1
-minValue dword 1
+maxValue dword 0
+minValue dword 0
+minValueNode dword ?
+maxValueNode dword ?
 p1 byte "Inserting values : ",0
 p2 byte "Traversing binray Tree in order",0
 p3 byte "Enter value to search in tree : ",0
@@ -29,27 +25,64 @@ maxString byte "Max value in tree : ",0
 minString byte "Min value in tree ",0
 deleteString byte "Value has been deleted",0
 notdelString byte "Value not find ",0
-bst dword 1000 dup(1)
+bst sdword 10000 dup(0)
+
 .code
+
 main PROC
-;-------------------------
-mov edx , offset p1
-call writeString
+
+choice:
+call clrscr
+mwriteln "        ---------------------------------------------------------------------------------------------------"
+mwriteln "        ---------------------------------------Binary Search Tree------------------------------------------"
+mwriteln "        ---------------------------------------------------------------------------------------------------"
 call crlf
+mwriteln "1 - Insert into tree "
+mwriteln "2 - Traverse tree "
+mwriteln "3 - Search into tree "
+mwriteln "4 - Delete from tree "
+mwriteln "5 - Find maximum value in tree "
+mwriteln "6 - Find minimum value in tree "
+mwriteln "7 - End program"
+call readInt
+cmp eax , 1
+je insertIntoTree
+cmp eax , 2
+je traverseIntoTree
+cmp eax , 3
+je search
+cmp eax , 4
+je deleteFromTree
+cmp eax , 5
+je maxValueIntoTree
+cmp eax , 6
+je minValueIntoTree
+cmp eax , 7
+je endProgram
+
+
+wrongChoice:
+
+mwriteln "Enter correct choice "
+call waitMsg
+jmp choice
+
+insertIntoTree:
+;<---------------------------------insert into tree------------------------->
+call clrscr
 mov edx , 4
 mov eax , 0
 mov ebx , 0
 mov ecx , 0
 mov [bst] , 5
-mov ecx, lengthof array
 mov edi , offset bst
-
-
+mwriteln "How many elements you want to insert: "
+call readInt
+mov ecx , eax
+mwriteln "Enter elements "
 l1:
-
-mov ebx, array[edx]
-mov tempIndex , edx
-
+call readDec
+mov ebx , eax
 push offset [bst + 4]
 push offset [bst + 8]
 
@@ -57,25 +90,17 @@ call insert
 
 add esp , 8
 mov edi , offset bst
-mov edx , tempIndex
-add edx , 4
 
 loop l1
 
 call crlf
-mov ecx, 15
-mov esi, 0
 
-l4:
+call waitMsg
+jmp choice
 
-mov eax , bst[esi]
-call writeDec
-call crlf
-add esi , 4
-loop l4
-;-----------------------------------
-call crlf
-
+traverseIntoTree:
+;<-----------------------------------Traverse into tree------------------------------------->
+call clrscr
 mov edx , offset p2
 call writeString
 call crlf
@@ -88,12 +113,12 @@ mov ecx , 0
 mov esi , offset bst
 invoke traverseInOrder , addr bst
 
-
-;----------------------------------------------
-
-mov edx , offset p3
-call writestring
-call crlf
+call waitMsg
+jmp choice
+search:
+;<-----------------------------------Search into tree------------------------------------->
+call clrscr
+mwriteln "Enter value : "
 call readInt
 mov edx , 0
 mov ebx , 0
@@ -101,7 +126,7 @@ mov ecx , 0
 
 invoke searchInTree , offset bst , eax
 
-cmp ecx , 1
+cmp ecx , 0
 je found
 jmp notFound
 
@@ -109,17 +134,21 @@ found:
 mov edx , offset foundString
 call writeString
 call crlf
-jmp final1
+
+call waitMsg
+jmp choice
 
 notFound:
 mov edx , offset nFoundString
 call writeString
 call crlf
-jmp final1
 
-final1:
-;-------------------------------------------
+call waitMsg
+jmp choice
 
+maxValueIntoTree:
+;<-----------------------------------Max in tree------------------------------------->
+call clrscr
 invoke findMax , offset bst
 mov edx , offset maxString
 call writeString
@@ -127,8 +156,11 @@ mov eax , maxValue
 call writeDec
 call crlf
 
-;-------------------------------------------
-
+call waitMsg
+jmp choice
+minValueIntoTree:
+;<-----------------------------------Min in tree------------------------------------->
+call clrscr
 invoke findMin , offset bst
 mov edx , offset minString
 call writeString
@@ -136,22 +168,24 @@ mov eax , minValue
 call writeDec
 call crlf
 
-;-------------------------------------------
+call waitMsg
+jmp choice
+
+deleteFromTree:
+;<-----------------------------------Delete from tree------------------------------------->
+call clrscr
 mwriteln "Enter value to delete : "
 call readInt
 invoke deleteNode , offset bst , eax
 
-;-------------------------------------------
 
-mov edx , 0
-mov eax , 0
-mov ebx , 0
-mov ecx , 0
+call waitMsg
+jmp choice
 
-mov esi , offset bst
-invoke traverseInOrder , addr bst
+
+endProgram:
+mwriteln "......................End Program....................."
 exit
-
 
 main endp
 ;//////////////////////////////////////////////// Insert Function //////////////////////////////////////////
@@ -172,7 +206,7 @@ jmp rightNode
 leftNode:
 mov eax, [ebp + 12]
 mov eax , [eax]
-cmp eax , 1
+cmp eax , 0
 je assignValueAtLeft
 
 mov eax , [ebp + 12]
@@ -194,14 +228,13 @@ assignValueAtLeft:
 mov esi , [ebp + 12]
 mov [esi] , ebx
 mov eax , [esi]
-call writeDec
-call crlf
+
 jmp final
 
 rightNode:
 mov eax, [ebp + 8]
 mov eax , [eax]
-cmp eax ,1
+cmp eax , 0
 je assignValueAtRight
 mov eax , [ebp + 8]
 mov edi , eax
@@ -222,15 +255,11 @@ assignValueAtRight:
 mov esi , [ebp + 8]
 mov [esi] , ebx
 mov eax , [esi]
-call writeDec
-call crlf
 jmp final
 
 assigValueAtRoot:
 mov [edi] , ebx
 mov eax , [edi]
-call writeDec
-call crlf
 jmp final
 
 final:
@@ -247,14 +276,11 @@ traverseInOrder proc , rootNode : ptr dword
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , esi
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 4
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseLeftNode
 
 print:
@@ -266,14 +292,11 @@ call crlf
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , esi
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 8
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseRightNode
 jmp final
 
@@ -301,28 +324,22 @@ je found
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , offset bst
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 4
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseLeftNode
 
 comeBack:
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , offset bst
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 8
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseRightNode
 jmp final
 
@@ -344,19 +361,14 @@ searchInTree endp
 ;///////////////////////////////////// Max Function ///////////////////////////////////////////
 findMax proc , rootNode : ptr dword
 
-
-
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , offset bst
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 8
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseRightNode
 jmp foundMaxValue
 
@@ -366,6 +378,7 @@ jmp final
 
 foundMaxValue:
 mov eax , [rootNode]
+mov maxValueNode , eax
 mov eax , [eax]
 mov MaxValue , eax
 
@@ -378,14 +391,11 @@ findMin proc , rootNode : ptr dword
 mov eax , rootNode
 mov ebx , rootNode
 sub eax , offset bst
-mul multi
-mov edx , 0
-div dividend
 add ebx , eax
 add ebx , 4
 mov eax , [ebx]
 
-cmp eax , 1
+cmp eax , 0
 jne traverseLeftNode
 jmp foundMaxValue
 
@@ -395,6 +405,7 @@ jmp final
 
 foundMaxValue:
 mov eax , [rootNode]
+mov minValueNode , eax
 mov eax , [eax]
 mov minValue , eax
 
@@ -413,7 +424,7 @@ mov ebx , [ebx]
 
 cmp ebx , edx
 je breakLoop
-cmp ebx , 1
+cmp ebx , 0
 je breakLoop
 
 cmp edx , ebx
@@ -448,7 +459,7 @@ breakLoop:
 mov ebx , rootNode
 mov ebx , [ebx]
 
-cmp ebx , 1
+cmp ebx , 0
 je valueNotFound
 
 mov eax , rootNode
@@ -460,37 +471,46 @@ add edi , 4
 add esi , 8
  
 mov ecx , [edi]
-cmp ecx , 1
+cmp ecx , 0
 je case1 ; if left is null
 jmp case2 ; else case
 
 case1:
 mov ecx , [esi]
-cmp ecx , 1
+cmp ecx , 0
 jne case2 ; if right is not null
 
-mov eax , 1
+mov eax , 0
 mov ebx , rootNode
 mov [ebx] , eax
 jmp valueDeleted
 
 case2:
 mov ecx , [esi]
-cmp ecx , 1 
+cmp ecx , 0 
 jne deleteAtRight ; if right is not null
 jmp deleteAtLeft ; if rght is null
 
 deleteAtRight:
 mov ecx , [edi]
-cmp ecx , 1
+cmp ecx , 0
 jne case3
-mov eax , rootNode
-invoke preOrder , eax , esi
+
+invoke findMin , esi
+mov esi , minValueNode
+mov eax , [esi]
+mov ebx , rootNode
+mov [ebx] , eax
+invoke deleteNode , esi , eax
 jmp valueDeleted
 
 deleteAtLeft:
-mov eax , rootNode
-invoke preOrder ,eax , edi
+invoke findMax , edi
+mov edi , maxValueNode
+mov eax , [edi]
+mov ebx , rootNode
+mov [ebx] , eax
+invoke deleteNode , edi , eax
 jmp valueDeleted
 
 case3:
@@ -504,7 +524,7 @@ mov edx, rootNode
 l2:
 
 mov ebx , [eax]
-cmp ebx , 1
+cmp ebx , 0
 je foundValue
 
 mov edx, eax
@@ -525,15 +545,17 @@ add edx , eax
 add edx , 8
 
 mov ebx , [edx]
-cmp ebx , 1
+cmp ebx , 0
 jne callAnotheFun
 
-mov ebx , 1
+mov ebx , 0
 mov [eax] , ebx
 jmp valueDeleted
 
 callAnotheFun:
-invoke preOrder , eax , edx
+
+mov ebx , [eax]
+invoke deleteNode , eax , ebx
 jmp valueDeleted
 
 valueDeleted:
@@ -550,46 +572,4 @@ call crlf
 final_2:
 ret
 deleteNode endp
-;///////////////////////////////////// PreOrder Function ///////////////////////////////////////////
-preOrder proc ,preNode : ptr dword , currentNode : ptr dowrd
-
-mov eax , currentNode
-mov eax , [eax]
-mov esi , preNode
-mov [esi] , eax
-
-mov eax, 1
-mov esi , currentNode
-mov [esi] , eax
-
-mov eax , currentNode
-sub eax , offset bst
-add eax , currentNode
-add eax , 4
-
-mov ebx , [eax]
-cmp ebx , 1
-jne traverseLeft
-
-comeback:
-mov eax , currentNode
-sub eax , offset bst
-add eax , currentNode
-add eax , 8
-
-mov ebx , [eax]
-cmp ebx , 1
-jne traverseRight
-jmp final
-
-traverseLeft:
-invoke preOrder , currentNode , eax
-jmp comeback
-
-traverseRight:
-invoke preOrder , currentNode , eax
-
-final:
-ret
-preOrder endp
 end main
