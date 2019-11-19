@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/19/19 17:34:07
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/19/19 20:37:28
 BST.asm							     Page 1 - 1
 
 
@@ -644,7 +644,7 @@ BST.asm							     Page 1 - 1
 
  0000038E			writeInteger2:
  0000038E  B8 00000000		mov eax , 0
- 00000393  A1 00000014 R	mov eax , maxValue
+ 00000393  A1 00000018 R	mov eax , minValue
  00000398  E8 00000000 E	call writeDec
  0000039D  E8 00000000 E	call crlf
  000003A2  EB 14		jmp endInput4
@@ -1146,7 +1146,7 @@ BST.asm							     Page 1 - 1
 				ret
  00000761			deleteNode endp
 				end main
-Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/19/19 17:34:07
+Microsoft (R) Macro Assembler Version 14.00.23506.0	    11/19/19 20:37:28
 BST.asm							     Symbols 2 - 1
 
 

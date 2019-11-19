@@ -242,7 +242,7 @@ jmp writeInteger2
 
 writeInteger2:
 mov eax , 0
-mov eax , maxValue
+mov eax , minValue
 call writeDec
 call crlf
 jmp endInput4
