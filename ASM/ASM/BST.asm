@@ -8,7 +8,8 @@ findMax proto , rootNode : ptr dword
 findMin proto , rootNode : ptr dword
 
 .data
-
+typeFlag dword ?
+deleteFlag dword ?
 multi dword 4
 dividend dword 4
 tempIndex dword ?
@@ -23,20 +24,41 @@ foundString byte "Value found in tree ",0
 nFoundString byte "Value not found in tree ",0
 maxString byte "Max value in tree : ",0
 minString byte "Min value in tree ",0
-deleteString byte "Value has been deleted",0
 notdelString byte "Value not find ",0
 bst sdword 10000 dup(0)
 
 .code
 
 main PROC
+TypeScreen:
+call clrscr
+mwriteln "        ---------------------------------------------------------------------------------------------------"
+mwriteln "        ---------------------------------------Binary Search Tree------------------------------------------"
+mwriteln "        ---------------------------------------------------------------------------------------------------"
+call crlf
+mwriteln "On which data type you want to work ?"
+mwriteln "1 - Character"
+mwriteln "2 - Integer"
+call readInt
+cmp eax , 1
+je charType
+cmp eax , 2
+je intType
+jmp TypeScreen
+
+charType:
+mov typeFlag , eax
+jmp choice
+
+intType:
+mov typeFlag , eax
+jmp choice
 
 choice:
 call clrscr
 mwriteln "        ---------------------------------------------------------------------------------------------------"
 mwriteln "        ---------------------------------------Binary Search Tree------------------------------------------"
 mwriteln "        ---------------------------------------------------------------------------------------------------"
-call crlf
 mwriteln "1 - Insert into tree "
 mwriteln "2 - Traverse tree "
 mwriteln "3 - Search into tree "
@@ -70,18 +92,32 @@ jmp choice
 insertIntoTree:
 ;<---------------------------------insert into tree------------------------->
 call clrscr
-mov edx , 4
+mov edx , 0
 mov eax , 0
 mov ebx , 0
 mov ecx , 0
-mov [bst] , 5
 mov edi , offset bst
 mwriteln "How many elements you want to insert: "
 call readInt
 mov ecx , eax
 mwriteln "Enter elements "
 l1:
+mov eax , typeFlag
+cmp eax , 1
+je readCharacter
+jmp readInteger
+
+readInteger:
 call readDec
+jmp endInput
+
+readCharacter:
+mov eax , 0
+call readChar
+movzx eax , al
+call writeChar
+call crlf
+endInput:
 mov ebx , eax
 push offset [bst + 4]
 push offset [bst + 8]
@@ -119,14 +155,32 @@ search:
 ;<-----------------------------------Search into tree------------------------------------->
 call clrscr
 mwriteln "Enter value : "
-call readInt
+
+mov eax , typeFlag
+cmp eax , 1
+je readCharacter2
+jmp readInteger2
+
+readInteger2:
+mov eax , 0
+call readDec
+jmp endInput2
+
+readCharacter2:
+mov eax , 0
+call readChar
+movzx eax , al
+call writeChar
+call crlf
+endInput2:
+
 mov edx , 0
 mov ebx , 0
 mov ecx , 0
 
 invoke searchInTree , offset bst , eax
 
-cmp ecx , 0
+cmp ecx , 1
 je found
 jmp notFound
 
@@ -152,9 +206,25 @@ call clrscr
 invoke findMax , offset bst
 mov edx , offset maxString
 call writeString
+
+mov eax , typeFlag
+cmp eax , 1
+je writeCharacter
+jmp writeInteger
+
+writeInteger:
+mov eax , 0
 mov eax , maxValue
 call writeDec
 call crlf
+jmp endInput3
+
+writeCharacter:
+mov eax , 0
+mov eax , maxValue
+call writeChar
+call crlf
+endInput3:
 
 call waitMsg
 jmp choice
@@ -164,9 +234,25 @@ call clrscr
 invoke findMin , offset bst
 mov edx , offset minString
 call writeString
-mov eax , minValue
+
+mov eax , typeFlag
+cmp eax , 1
+je writeCharacter2
+jmp writeInteger2
+
+writeInteger2:
+mov eax , 0
+mov eax , maxValue
 call writeDec
 call crlf
+jmp endInput4
+
+writeCharacter2:
+mov eax , 0
+mov eax , minValue
+call writeChar
+call crlf
+endInput4:
 
 call waitMsg
 jmp choice
@@ -175,10 +261,34 @@ deleteFromTree:
 ;<-----------------------------------Delete from tree------------------------------------->
 call clrscr
 mwriteln "Enter value to delete : "
-call readInt
+
+mov eax , typeFlag
+cmp eax , 1
+je readCharacter3
+jmp readInteger3
+
+readInteger3:
+mov eax , 0
+call readDec
+jmp endInput5
+
+readCharacter3:
+mov eax , 0
+call readChar
+movzx eax , al
+call writeChar
+call crlf
+endInput5:
+
 invoke deleteNode , offset bst , eax
 
-
+mov eax , deleteFlag
+cmp eax , 1
+je printDeleteMessage
+jmp noMessage
+printDeleteMessage:
+mwriteln "Value has been deleted"
+noMessage:
 call waitMsg
 jmp choice
 
@@ -198,6 +308,9 @@ cmp ebx , [edi]
 je final
 
 mov eax , [edi]
+
+cmp eax , 0
+je assignValueAtRoot
 
 cmp  ebx , eax
 jb leftNode
@@ -257,7 +370,7 @@ mov [esi] , ebx
 mov eax , [esi]
 jmp final
 
-assigValueAtRoot:
+assignValueAtRoot:
 mov [edi] , ebx
 mov eax , [edi]
 jmp final
@@ -284,10 +397,25 @@ cmp eax , 0
 jne traverseLeftNode
 
 print:
+mov eax , typeFlag
+cmp eax , 1
+je printChar
+jmp printInt
+
+printChar:
+mov eax , [rootNode]
+mov eax , [eax]
+call writeChar
+call crlf
+jmp endPrint
+
+printInt:
 mov eax , [rootNode]
 mov eax , [eax]
 call writeDec
 call crlf
+
+endPrint:
 
 mov eax , rootNode
 mov ebx , rootNode
@@ -559,12 +687,11 @@ invoke deleteNode , eax , ebx
 jmp valueDeleted
 
 valueDeleted:
-mov edx, offset deleteString
-call writeString
-call crlf
+mov deleteFlag , 1
 jmp final_2
 
 valueNotFound:
+mov deleteFlag , 0
 mov edx, offset notdelString
 call writeString
 call crlf
