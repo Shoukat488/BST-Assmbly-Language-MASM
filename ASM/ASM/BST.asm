@@ -23,7 +23,7 @@ p3 byte "Enter value to search in tree : ",0
 foundString byte "Value found in tree ",0
 nFoundString byte "Value not found in tree ",0
 maxString byte "Max value in tree : ",0
-minString byte "Min value in tree ",0
+minString byte "Min value in tree : ",0
 notdelString byte "Value not find ",0
 bst sdword 10000 dup(0)
 
@@ -36,14 +36,17 @@ mwriteln "        --------------------------------------------------------------
 mwriteln "        ---------------------------------------Binary Search Tree------------------------------------------"
 mwriteln "        ---------------------------------------------------------------------------------------------------"
 call crlf
-mwriteln "On which data type you want to work ?"
-mwriteln "1 - Character"
-mwriteln "2 - Integer"
+mwriteln "                                      On which data type you want to work?"
+mwriteln "                                               1 - Character"
+mwriteln "                                               2 - Integer"
+mwriteln "                                               3 - Exit"
 call readInt
 cmp eax , 1
 je charType
 cmp eax , 2
 je intType
+cmp eax , 3
+je endProgram
 jmp TypeScreen
 
 charType:
@@ -59,13 +62,13 @@ call clrscr
 mwriteln "        ---------------------------------------------------------------------------------------------------"
 mwriteln "        ---------------------------------------Binary Search Tree------------------------------------------"
 mwriteln "        ---------------------------------------------------------------------------------------------------"
-mwriteln "1 - Insert into tree "
-mwriteln "2 - Traverse tree "
-mwriteln "3 - Search into tree "
-mwriteln "4 - Delete from tree "
-mwriteln "5 - Find maximum value in tree "
-mwriteln "6 - Find minimum value in tree "
-mwriteln "7 - End program"
+mwriteln "                                              1 - Insert into tree "
+mwriteln "                                              2 - Traverse tree "
+mwriteln "                                              3 - Search into tree "
+mwriteln "                                              4 - Delete from tree "
+mwriteln "                                              5 - Find maximum value in tree "
+mwriteln "                                              6 - Find minimum value in tree "
+mwriteln "                                              7 - End program"
 call readInt
 cmp eax , 1
 je insertIntoTree
@@ -294,7 +297,8 @@ jmp choice
 
 
 endProgram:
-mwriteln "......................End Program....................."
+mwriteln"                                                ~THANK YOU~"
+mwriteln "                          ......................End Program....................."
 exit
 
 main endp
