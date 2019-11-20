@@ -10,13 +10,13 @@ findMin proto , rootNode : ptr dword
 .data
 typeFlag dword ?
 deleteFlag dword ?
-multi dword 4
-dividend dword 4
+multi sdword 4
+dividend sdword 4
 tempIndex dword ?
-maxValue dword 0
-minValue dword 0
-minValueNode dword ?
-maxValueNode dword ?
+maxValue sdword 0
+minValue sdword 0
+minValueNode sdword ?
+maxValueNode sdword ?
 p1 byte "Inserting values : ",0
 p2 byte "Traversing binray Tree in order",0
 p3 byte "Enter value to search in tree : ",0
@@ -111,7 +111,7 @@ je readCharacter
 jmp readInteger
 
 readInteger:
-call readDec
+call readInt
 jmp endInput
 
 readCharacter:
@@ -166,7 +166,7 @@ jmp readInteger2
 
 readInteger2:
 mov eax , 0
-call readDec
+call readInt
 jmp endInput2
 
 readCharacter2:
@@ -218,7 +218,7 @@ jmp writeInteger
 writeInteger:
 mov eax , 0
 mov eax , maxValue
-call writeDec
+call writeInt
 call crlf
 jmp endInput3
 
@@ -246,7 +246,7 @@ jmp writeInteger2
 writeInteger2:
 mov eax , 0
 mov eax , minValue
-call writeDec
+call writeInt
 call crlf
 jmp endInput4
 
@@ -272,7 +272,7 @@ jmp readInteger3
 
 readInteger3:
 mov eax , 0
-call readDec
+call readInt
 jmp endInput5
 
 readCharacter3:
@@ -317,7 +317,7 @@ cmp eax , 0
 je assignValueAtRoot
 
 cmp  ebx , eax
-jb leftNode
+jl leftNode
 jmp rightNode
 
 leftNode:
@@ -416,7 +416,7 @@ jmp endPrint
 printInt:
 mov eax , [rootNode]
 mov eax , [eax]
-call writeDec
+call writeInt
 call crlf
 
 endPrint:
